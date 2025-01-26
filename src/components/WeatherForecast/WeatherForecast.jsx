@@ -15,15 +15,16 @@ import showerRain from "../../images/showerRain.png";
 import snow from "../../images/snow.png";
 import thunderstorm from "../../images/thunderstorm.png";
 // From utils
-import { convertKelvin } from "../../utils/utils";
-import { setDate } from "../../utils/utils";
-import { setWeekday } from "../../utils/utils";
-import { minTemp } from "../../utils/utils";
-import { maxTemp } from "../../utils/utils";
-import { descriptionUppercase } from "../../utils/utils";
+import {
+  convertKelvin,
+  setDate,
+  setWeekday,
+  minTemp,
+  maxTemp,
+  descriptionUppercase,
+} from "../../utils/utils";
 // From mock
-import { dayNames } from "../../mock/mock";
-import { daysTempAndIcon } from "../../mock/mock";
+import { dayNames, initialDaysData } from "../../mock/mock";
 
 //Default function
 export default function WeatherForecast() {
@@ -34,20 +35,22 @@ export default function WeatherForecast() {
   const [weatherData, setWeatherData] = useState(null);
   const [enterPressed, setEnterPressed] = useState(false);
   const [error, setError] = useState(null);
+  const [daysData, setDaysData] = useState(initialDaysData);
 
   const weatherDataArray = weatherData?.list;
   const weatherDescription = weatherData?.list[0]?.weather[0]?.description;
 
+  const updatedData = [...daysData];
+  updatedData.shift();
+
   function handleChange(e) {
-    const value = e.target.value;
-    setInputValue(value);
+    setInputValue(e.target.value);
   }
 
-  function handleOnKeyDown(e) {
-    if (inputValue && e.keyCode === 13) {
-      setEnterPressed(true);
-      setLocation(inputValue);
-    }
+  function handleSubmit(e) {
+    e.preventDefault();
+    setEnterPressed(true);
+    setLocation(inputValue);
   }
 
   useEffect(() => {
@@ -82,83 +85,32 @@ export default function WeatherForecast() {
     getWeatherData();
   }, [coords]);
 
-  for (let i = 0; i < weatherDataArray?.length; i++) {
-    const todayDataString = weatherData?.list[i]?.dt_txt.split(" ")[0];
+  useEffect(() => {
+    if (!weatherDataArray) return;
 
-    switch (todayDataString) {
-      case setDate(new Date()):
-        daysTempAndIcon[0] = {
-          ...daysTempAndIcon[0],
-          todayTemp: [
-            ...daysTempAndIcon[0].todayTemp,
-            weatherData?.list[i]?.main?.temp,
-          ],
-          todayIcon: weatherData?.list[i]?.weather[0]?.icon.slice(0, -1),
-        };
-        break;
-      case setDate(new Date(), 1):
-        daysTempAndIcon[1] = {
-          ...daysTempAndIcon[1],
-          tomorowTemp: [
-            ...daysTempAndIcon[1].tomorowTemp,
-            weatherData?.list[i]?.main?.temp,
-          ],
-          tomorowIcon: weatherData?.list[i]?.weather[0]?.icon.slice(0, -1),
-        };
+    const updatedDaysData = Array(5)
+      .fill()
+      .map(() => ({
+        temps: [],
+        icon: null,
+      }));
 
-        break;
-      case setDate(new Date(), 2):
-        daysTempAndIcon[2] = {
-          ...daysTempAndIcon[2],
-          twoDaysAfterTemp: [
-            ...daysTempAndIcon[2].twoDaysAfterTemp,
-            weatherData?.list[i]?.main?.temp,
-          ],
-          twoDaysAfterIcon: weatherData?.list[i]?.weather[0]?.icon.slice(0, -1),
-        };
-        break;
-      case setDate(new Date(), 3):
-        daysTempAndIcon[3] = {
-          ...daysTempAndIcon[3],
-          threeDaysAfterTemp: [
-            ...daysTempAndIcon[3].threeDaysAfterTemp,
-            weatherData?.list[i]?.main?.temp,
-          ],
-          threeDaysAfterIcon: weatherData?.list[i]?.weather[0]?.icon.slice(
-            0,
-            -1
-          ),
-        };
-        break;
-      case setDate(new Date(), 4):
-        daysTempAndIcon[4] = {
-          ...daysTempAndIcon[4],
-          fourDaysAfterTemp: [
-            ...daysTempAndIcon[4].fourDaysAfterTemp,
-            weatherData?.list[i]?.main?.temp,
-          ],
-          fourDaysAfterIcon: weatherData?.list[i]?.weather[0]?.icon.slice(
-            0,
-            -1
-          ),
-        };
-        break;
-      default:
-        daysTempAndIcon[5] = {
-          ...daysTempAndIcon[5],
-          fiveDaysAfterTemp: [
-            ...daysTempAndIcon[5].fiveDaysAfterTemp,
-            weatherData?.list[i]?.main?.temp,
-          ],
-          fiveDaysAfterIcon: weatherData?.list[i]?.weather[0]?.icon.slice(
-            0,
-            -1
-          ),
-        };
-        break;
-    }
-  }
-  
+    weatherDataArray.forEach((data) => {
+      const date = data.dt_txt.split(" ")[0];
+      const temp = data.main.temp;
+      const icon = data.weather[0].icon.slice(0, -1);
+
+      for (let i = 0; i < 5; i++) {
+        if (date === setDate(new Date(), i)) {
+          updatedDaysData[i].temps.push(temp);
+          updatedDaysData[i].icon = icon;
+        }
+      }
+    });
+
+    setDaysData(updatedDaysData);
+  }, [weatherDataArray]);
+
   function whichSrc(icon) {
     let src = null;
     switch (icon) {
@@ -229,42 +181,28 @@ export default function WeatherForecast() {
           enterPressed && weatherData ? "inputDiv inputDivPosition" : "inputDiv"
         }
       >
-        <input
-          type="text"
-          className="textInput"
-          onChange={(e) => handleChange(e)}
-          onKeyDown={(e) => handleOnKeyDown(e)}
-          value={inputValue}
-          placeholder="Enter a City..."
-        />
+        <form onSubmit={handleSubmit}>
+          <input
+            type="text"
+            className="textInput"
+            onChange={handleChange}
+            value={inputValue}
+            placeholder="Enter a City..."
+          />
+        </form>
         <p className="error">{error && error}</p>
       </div>
       {enterPressed && weatherData && (
         <div className="weekDays">
-          <WeekDay
-            text={dayNames[setWeekday(new Date(), 1)]}
-            src={whichSrc(daysTempAndIcon[1].tomorowIcon)}
-            minTemp={minTemp(daysTempAndIcon[1].tomorowTemp)}
-            maxTemp={maxTemp(daysTempAndIcon[1].tomorowTemp)}
-          />
-          <WeekDay
-            text={dayNames[setWeekday(new Date(), 2)]}
-            src={whichSrc(daysTempAndIcon[2].twoDaysAfterIcon)}
-            minTemp={minTemp(daysTempAndIcon[2].twoDaysAfterTemp)}
-            maxTemp={maxTemp(daysTempAndIcon[2].twoDaysAfterTemp)}
-          />
-          <WeekDay
-            text={dayNames[setWeekday(new Date(), 3)]}
-            src={whichSrc(daysTempAndIcon[3].threeDaysAfterIcon)}
-            minTemp={minTemp(daysTempAndIcon[3].threeDaysAfterTemp)}
-            maxTemp={maxTemp(daysTempAndIcon[3].threeDaysAfterTemp)}
-          />
-          <WeekDay
-            text={dayNames[setWeekday(new Date(), 4)]}
-            src={whichSrc(daysTempAndIcon[4].fourDaysAfterIcon)}
-            minTemp={minTemp(daysTempAndIcon[4].fourDaysAfterTemp)}
-            maxTemp={maxTemp(daysTempAndIcon[4].fourDaysAfterTemp)}
-          />
+          {updatedData.map((day, i) => (
+            <WeekDay
+              key={i}
+              text={dayNames[setWeekday(new Date(), i + 1)]}
+              src={whichSrc(day.icon)}
+              minTemp={minTemp(day.temps)}
+              maxTemp={maxTemp(day.temps)}
+            />
+          ))}
         </div>
       )}
     </div>

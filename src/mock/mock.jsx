@@ -8,29 +8,9 @@ export const dayNames = [
   "Saturday",
 ];
 
-export const daysTempAndIcon = [
-  {
-    todayTemp: [],
-    todayIcon: null,
-  },
-  {
-    tomorowTemp: [],
-    tomorowIcon: null,
-  },
-  {
-    twoDaysAfterTemp: [],
-    twoDaysAfterIcon: null,
-  },
-  {
-    threeDaysAfterTemp: [],
-    threeDaysAfterIcon: null,
-  },
-  {
-    fourDaysAfterTemp: [],
-    fourDaysAfterIcon: null,
-  },
-  {
-    fiveDaysAfterTemp: [],
-    fiveDaysAfterIcon: null,
-  },
-];
+export const initialDaysData = Array(5)
+  .fill()
+  .map(() => ({
+    temps: [],
+    icon: null,
+  }));
