@@ -33,7 +33,6 @@ export default function WeatherForecast() {
   const [coords, setCoords] = useState(null);
   const [locationName, setLocationName] = useState("");
   const [weatherData, setWeatherData] = useState(null);
-  const [enterPressed, setEnterPressed] = useState(false);
   const [error, setError] = useState(null);
   const [daysData, setDaysData] = useState(initialDaysData);
 
@@ -49,7 +48,6 @@ export default function WeatherForecast() {
 
   function handleSubmit(e) {
     e.preventDefault();
-    setEnterPressed(true);
     setLocation(inputValue);
   }
 
@@ -152,7 +150,7 @@ export default function WeatherForecast() {
       <div className="imgAndTitle">
         <img
           src={
-            enterPressed && weatherData
+            weatherData
               ? whichSrc(weatherData?.list[0]?.weather[0]?.icon.slice(0, -1))
               : homePageImg
           }
@@ -160,27 +158,23 @@ export default function WeatherForecast() {
           className="img"
         />
         <div className="title">
-          {enterPressed && weatherData && <p>Today</p>}
-          <h1 className={enterPressed && weatherData ? "h1 changeH1 " : "h1"}>
-            {enterPressed && weatherData ? locationName : "Weather Forecast"}
+          {weatherData && <p>Today</p>}
+          <h1 className={weatherData ? "h1 changeH1 " : "h1"}>
+            {weatherData ? locationName : "Weather Forecast"}
           </h1>
-          {enterPressed && weatherData && (
+          {weatherData && (
             <p className="description">
               {Math.round(convertKelvin(weatherData?.list[0]?.main?.temp))} °C
             </p>
           )}
-          {enterPressed && weatherData && (
+          {weatherData && (
             <p className="description">
               {descriptionUppercase(weatherDescription)}
             </p>
           )}
         </div>
       </div>
-      <div
-        className={
-          enterPressed && weatherData ? "inputDiv inputDivPosition" : "inputDiv"
-        }
-      >
+      <div className={weatherData ? "inputDiv inputDivPosition" : "inputDiv"}>
         <form onSubmit={handleSubmit}>
           <input
             type="text"
@@ -192,7 +186,7 @@ export default function WeatherForecast() {
         </form>
         <p className="error">{error && error}</p>
       </div>
-      {enterPressed && weatherData && (
+      {weatherData && (
         <div className="weekDays">
           {updatedData.map((day, i) => (
             <WeekDay

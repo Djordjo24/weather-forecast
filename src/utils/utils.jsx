@@ -7,7 +7,9 @@ export function setDate(date, addDays = 0) {
   const day = date.getDate();
   const month = date.getMonth() + 1;
   const year = date.getFullYear();
-  return `${year}-${month < 10 ? "0" + month : month}-${day}`;
+  return `${year}-${month < 10 ? "0" + month : month}-${
+    day < 10 ? "0" + day : day
+  }`;
 }
 
 export function setWeekday(date, addDays) {
