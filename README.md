@@ -8,7 +8,7 @@ Tech Stack
 
 - REST API (OpenWeatherMap)
 
-Getting Started Clone the repository: git clone cd
+Getting Started Clone the repository: git clone
 
 Install dependencies: npm install
 
