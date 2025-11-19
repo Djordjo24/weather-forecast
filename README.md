@@ -4,9 +4,9 @@ A web application that displays real-time weather data using the OpenWeatherMap 
 
 Tech Stack
 
-React.js
+- React.js
 
-REST API (OpenWeatherMap)
+- REST API (OpenWeatherMap)
 
 Getting Started Clone the repository: git clone cd
 
